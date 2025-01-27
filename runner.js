@@ -21,7 +21,7 @@ const svalGlobal = interpreters['module'].scope.context.globalThis.value;
 const keys = [];
 for(const key in globalThis){keys.push(key);}
 
-const props = Object.getOwnPropertyNames(globalThis).concat(keys).concat(Object.getOwnPropertySymbols(globalThis));
+const props = new Set(Object.getOwnPropertyNames(globalThis).concat(keys).concat(Object.getOwnPropertySymbols(globalThis)));
 
 for(const prop of props){
   svalGlobal[prop] = globalThis[prop];
@@ -68,8 +68,8 @@ runner.importModule = async function importModule(urlObj,options,type="module"){
     mod = interpreters[type].parse(mod);
     cacheMap.set(key,mod);
   }
-  runner.run(mod);
-  return runner;
+  interpreters[type].run(mod);
+  return interpreters[type];
 };
 
 runner.importScript = async function importScript(urlObj,options){
