@@ -211,4 +211,4 @@ function cleanResponse(response){
 return response;
 }
 
-export default onRequest;
+export onRequest;
