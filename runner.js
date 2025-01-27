@@ -73,7 +73,7 @@ runner.importScript = async function importScript(urlObj,options){
     scr = scriptMap.get(key);
   }else{
     scr = fetchText(...arguments);
-    scr = scriptMap.get(key);
+    scr = scriptMap.set(key,scr);
   }
   if(scr instanceof Promise){
     scr = await scr;
