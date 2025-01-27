@@ -11,7 +11,7 @@ async function init(){
 
 export default {
   async fetch(request, env, ctx) {
-    const onReq = init.result ?? (await init());
-    return onReq(...arguments);
+    const onRequest = init.result ?? (await init());
+    return onRequest(...arguments);
   },
 };
