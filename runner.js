@@ -1,18 +1,22 @@
 import Sval from './sval.js'
 
-const scriptInterpreter = new Sval({
-  ecmaVer: 'latest',
-  sourceType: 'script',
-  sandBox: false,
-});
-const moduleInterpreter = new Sval({
-  ecmaVer: 'latest',
-  sourceType: 'module',
-  sandBox: false,
-});
+
+const interpreters = {
+  module : new Sval({
+    ecmaVer: 'latest',
+    sourceType: 'module',
+    sandBox: false,
+  }),
+  script : new Sval({
+    ecmaVer: 'latest',
+    sourceType: 'script',
+    sandBox: false,
+  }),
+};
 
 
-const svalGlobal = moduleInterpreter.scope.context.globalThis.value;
+
+const svalGlobal = interpreters['module'].scope.context.globalThis.value;
 
 const keys = [];
 for(const key in globalThis){keys.push(key);}
@@ -36,52 +40,40 @@ svalGlobal.fetch = function fetch(){
   }
 };
 
-const moduleMap = new Map();
-const scriptMap = new Map();
+const cache = {
+  module : new Map(),
+  script : new Map()
+}; 
 
 const fetchText = async function fetchText(){
   const res = await fetch(...arguments);
   return await res.text();
 };
 
-const runner = moduleInterpreter;
+const runner = interpreters['module'];
 
-runner.importModule = async function importModule(urlObj,options){
+runner.importModule = async function importModule(urlObj,options,type="module"){
+  const cacheMap = cache[type];
   const url = urlObj?.url ?? urlObj;
   const key = url.split(/[?#]/).shift();
   let mod;
-  if(moduleMap.has(key)){
-    mod = moduleMap.get(key);
+  if(cacheMap.has(key)){
+    mod = cacheMap.get(key);
   }else{
     mod = fetchText(...arguments);
-    moduleMap.set(key,mod);
+    cacheMap.set(key,mod);
   }
   if(mod instanceof Promise){
     mod = await mod;
-    mod = moduleInterpreter.parse(mod);
-    moduleMap.set(key,mod);
+    mod = interpreters[type].parse(mod);
+    cacheMap.set(key,mod);
   }
   runner.run(mod);
   return runner;
 };
 
 runner.importScript = async function importScript(urlObj,options){
-  const url = urlObj?.url ?? urlObj;
-  const key = url.split(/[?#]/).shift();
-  let scr;
-  if(scriptMap.has(key)){
-    scr = scriptMap.get(key);
-  }else{
-    scr = fetchText(...arguments);
-    scr = scriptMap.set(key,scr);
-  }
-  if(scr instanceof Promise){
-    scr = await scr;
-    scr = scriptInterpreter.parse(scr);
-    scriptMap.set(key,scr);
-  }
-  runner.run(scr);
-  return runner;
+  return importModule(...arguments,"script");
 };
 
 export default runner;
