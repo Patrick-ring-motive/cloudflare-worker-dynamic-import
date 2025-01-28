@@ -14,7 +14,7 @@ const interpreters = {
   }),
 };
 
-
+const isArray = x => Array.isArray(x) || x instanceof Array;
 
 const svalGlobal = interpreters['module'].scope.context.globalThis.value;
 
@@ -52,7 +52,7 @@ const fetchText = async function fetchText(){
 
 const runner = interpreters['module'];
 
-runner.importModule = async function importModule(urlObj,options,type="module"){
+runner.compileModule = async function compileModule(urlObj,options,type="module"){
   const cacheMap = cache[type];
   const url = urlObj?.url ?? urlObj;
   const key = url.split(/[?#]/).shift();
@@ -68,12 +68,28 @@ runner.importModule = async function importModule(urlObj,options,type="module"){
     mod = interpreters[type].parse(mod);
     cacheMap.set(key,mod);
   }
+  return cacheMap.get(key);
+};
+
+runner.importModule = async function importModule(urlObj,options,type="module"){
+  const mod = await runner.compileModule(arguments);
   interpreters[type].run(mod);
   return interpreters[type];
 };
 
+runner.importModules = async function importModules(...args){
+  args = args.map(x=>isArray(x)?runner.compileModule(...x):runner.compileModule(x));
+  args = await Promise.all(args);
+  args.map(x=>runner.run(x));
+  return runner;
+};
+
+runner.compileScript = async function compileScript(urlObj,options){
+  return runner.compileModule(...arguments,"script");
+};
+
 runner.importScript = async function importScript(urlObj,options){
-  return importModule(...arguments,"script");
+  return runner.importModule(...arguments,"script");
 };
 
 export default runner;
