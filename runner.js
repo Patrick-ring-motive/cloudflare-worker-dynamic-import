@@ -54,7 +54,7 @@ const runner = interpreters['module'];
 
 runner.compileModule = async function compileModule(urlObj,options,type="module"){
   const cacheMap = cache[type];
-  const url = urlObj?.url ?? urlObj;
+  const url = String(urlObj?.url ?? urlObj);
   const key = url.split(/[?#]/).shift();
   let mod;
   if(cacheMap.has(key)){
