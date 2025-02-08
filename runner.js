@@ -13,7 +13,7 @@ const interpreters = {
     sandBox: false,
   }),
 };
-const BleakMap = (()=>{
+const CacheMap = (()=>{
   const objDefProp = (obj,prop,value) =>Object.defineProperty(obj,prop,{
     value:value,
     enumerable:false,
@@ -23,7 +23,7 @@ const BleakMap = (()=>{
   const isSymbol = x => typeof x === 'symbol' || x instanceof Symbol;
   const mapSet = (map,key,value)=>Map.prototype.set.call(map,key,value);
   const mapGet = (map,key,value)=>Map.prototype.get.call(map,key);
-  return class BleakMap extends Map{
+  return class CacheMap extends Map{
     constructor(iter){
       super();
       if(!this['&weakMap']){
@@ -74,8 +74,8 @@ globalThis.fetch = function fetch(){
 };
 
 const cache = {
-  module : new BleakMap(),
-  script : new BleakMap()
+  module : new CacheMap(),
+  script : new CacheMap()
 }; 
 
 const fetchText = async function fetchText(){
