@@ -1,5 +1,11 @@
+import './core.js';
 import Sval from './sval.js'
 
+globalThis.WeakRef ??= (()=>function WeakRef(ref){
+	const $this = new.target ? this : Object.create(WeakRef.prototype);
+	$this.deref = () => ref;
+	return $this;
+})();
 
 const interpreters = {
   module : new Sval({
@@ -14,11 +20,12 @@ const interpreters = {
   }),
 };
 
+
+
 const WeakRefMap = (()=>{
   const $weakRefMap = Symbol('*weakRefMap');
-  return class WeakRefMap extends Map {
+  return class WeakRefMap{
       constructor() {
-        super();
         this[$weakRefMap] = new Map();
       }
 
@@ -103,19 +110,29 @@ runner.importModule = async function importModule(urlObj,options,type="module"){
   return interpreters[type];
 };
 
-runner.importModules = async function importModules(...args){
-  args = args.map(x=>isArray(x)?runner.compileModule(...x):runner.compileModule(x));
-  args = await Promise.all(args);
-  args.map(x=>runner.run(x));
-  return runner;
-};
+
 
 runner.compileScript = async function compileScript(urlObj,options){
-  return runner.compileModule(...arguments,"script");
+  return runner.compileModule(urlObj,options,"script");
 };
 
 runner.importScript = async function importScript(urlObj,options){
-  return runner.importModule(...arguments,"script");
+  return runner.importModule(urlObj,options,"script");
+};
+
+runner.compileCode = async function compileCode(urlObj,options){
+  try{
+    return await runner.compileModule(urlObj,options,"script");
+  }catch{
+    return await runner.compileModule(urlObj,options);
+  }
+}
+
+runner.importModules = async function importModules(...args){
+  args = args.map(x=>isArray(x)?runner.compileCode(...x):runner.compileCode(x));
+  args = await Promise.all(args);
+  args.map(x=>runner.run(x));
+  return runner;
 };
 
 export default runner;
