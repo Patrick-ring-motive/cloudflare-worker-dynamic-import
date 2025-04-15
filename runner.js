@@ -21,43 +21,6 @@ const interpreters = {
 };
 
 
-
-const WeakRefMap = (()=>{
-  const $weakRefMap = Symbol('*weakRefMap');
-  return class WeakRefMap{
-      constructor() {
-        this[$weakRefMap] = new Map();
-      }
-
-      get(key) {
-        const ref = this[$weakRefMap].get(key);
-        const value = ref?.deref?.();
-        if (value === undefined) {
-          this[$weakRefMap].delete(key);
-        }
-        return value;
-      }
-
-      set(key, value) {
-        this[$weakRefMap].set(key, new WeakRef(value));
-        return this;
-      }
-
-      delete(key) {
-        return this[$weakRefMap].delete(key);
-      }
-
-      has(key) {
-        const value = this[$weakRefMap].get(key)?.deref?.();
-        if (value === undefined) {
-          this[$weakRefMap].delete(key);
-          return false;
-        }
-        return true;
-      }
-    }
-  })();
-
 const isArray = x => Array.isArray(x) || x instanceof Array;
 
 const $fetch = Symbol('*fetch');
@@ -74,8 +37,8 @@ globalThis.fetch = function fetch(){
 };
 
 const cache = {
-  module : new WeakRefMap(),
-  script : new WeakRefMap()
+  module : new Map(),
+  script : new Map()
 }; 
 
 const fetchText = async function fetchText(){
