@@ -21,20 +21,19 @@ const interpreters = {
 };
 
 
-const isArray = x => Array.isArray(x) || x instanceof Array;
+const isArray = x => Array.isArray(x) || x instanceof Array || x?.constructor?.name === 'Array';
 
-const $fetch = Symbol('*fetch');
-globalThis[$fetch] = fetch;
-globalThis.fetch = function fetch(){
+const $fetch = globalThis.fetch;
+globalThis.fetch = Object.setPrototypeOf(function fetch(...args){
   try{
-    return globalThis[$fetch](...arguments);
+    return await $fetch(...args);
   }catch(e){
-    return new Response(Object.getOwnPropertyNames(e).map(x=>`${x} : ${e[x]}`).join(''),{
+    return new Response(Object.getOwnPropertyNames(e??{}).map(x=>`${x} : ${e[x]}`).join(''),{
       status : 569,
-      statusText:e.message
+      statusText:e?.message
     });
   }
-};
+},$fetch);
 
 const cache = {
   module : new Map(),
