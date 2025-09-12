@@ -17,9 +17,9 @@ export default {
       const onRequest = init.result ?? (await init());
       return await onRequest(...arguments);
     }catch(e){
-      return new Response(Object.getOwnPropertyNames(e).map(x=>`${x} : ${e[x]}`).join(''),{
+      return new Response(Object.getOwnPropertyNames(e??{}).map(x=>`${x} : ${e[x]}`).join(''),{
         status : 569,
-        statusText:e.message
+        statusText:e?.message
       });
     }
   },
