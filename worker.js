@@ -1,20 +1,18 @@
-import runner from './runner.js';
+import importModule from './runner.js';
 
-async function init(){
-  if(init.result)return init.result;
-   if(!init.running)init.running = runner.importModules(
-    'https://cdn.jsdelivr.net/npm/core-js/+esm',
-    `https://raw.githubusercontent.com/Patrick-ring-motive/kaleb/refs/heads/main/worker.js?${new Date().getTime()}`
-    );
-   await init.running;
-   init.result = runner.exports.default;
-   return init.result;
-}
-
+const workerURL = `https://raw.githubusercontent.com/Patrick-ring-motive/kaleb/refs/heads/main/worker.js?${new Date().getTime()}`;
+const isPromise = x => x instanceof Promise || typeof x?.then === 'function' || x?.constructor?.name === 'Promise';
+let init;
 export default {
   async fetch(request, env, ctx) {
     try{
-      const onRequest = init.result ?? (await init());
+      if(!init){
+        init = importModule(workerURL);
+      }
+      if(isPromise(init)){
+        init = await init;
+      }
+      const { onRequest } = init;
       return await onRequest(...arguments);
     }catch(e){
       return new Response(Object.getOwnPropertyNames(e??{}).map(x=>`${x} : ${e[x]}`).join(''),{
