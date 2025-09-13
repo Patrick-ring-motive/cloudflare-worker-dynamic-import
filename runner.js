@@ -26,5 +26,5 @@ const fetchText = async function fetchText(){
 export const importModule = async function importModule(url){
   const mod = await fetchText(url);
   interpreter.run(mod);
-  return interpreter['export'];
+  return interpreter['exports'];
 };
