@@ -27,6 +27,7 @@ const interpreter = new Sval({
         constructor(...args){
             try{
                 if(/^(101|204|205|304)$/.test(args?.[1]?.status)){
+                    console.warn('Trying to give a body to in compatible response code 101|204|205|304; body ignored');
                     (args??[])[0] = null;
                     delete (args??[])[1].body;
                 }
