@@ -17,7 +17,7 @@ export default {
       return await onRequest(...arguments);
     }catch(e){
       console.warn(e,...arguments);
-      return new Response(Object.getOwnPropertyNames(e??{}).map(x=>`${x} : ${e[x]}`).join(''),{
+      return new Response(Object.getOwnPropertyNames(e??{}).map(x=>`${x} : ${e[x]}`).join(','),{
         status : 569,
         statusText:e?.message
       });
