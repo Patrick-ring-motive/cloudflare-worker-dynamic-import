@@ -33,10 +33,10 @@
                 return WithStatement
             },
             get IfStatement() {
-                return Jt
+                return IfStatement
             },
             get SwitchStatement() {
-                return $t
+                return SwitchStatement
             },
             get SwitchCase() {
                 return er
@@ -3864,7 +3864,7 @@
             }
         })
     }
-    var jt = Object.freeze({
+    var IfStatement = Object.freeze({
         __proto__: null,
         ObjectPattern: Dt,
         ArrayPattern: Ot,
@@ -3897,7 +3897,7 @@
         return v(this, function(e) {
             switch (e.label) {
                 case 0:
-                    return t ? (Ut = Ut || m({}, O, Rt, At, D, Lt, jt, qt), (i = Ut[t.type]) ? [5, b(i(t, r))] : [3, 2]) : [2];
+                    return t ? (Ut = Ut || m({}, O, Rt, At, D, Lt, IfStatement, qt), (i = Ut[t.type]) ? [5, b(i(t, r))] : [3, 2]) : [2];
                 case 1:
                     return [2, e.sent()];
                 case 2:
@@ -4070,7 +4070,7 @@
         })
     }
 
-    function Jt(t, r, i) {
+    function IfStatement(t, r, i) {
         var n;
         return void 0 === i && (i = {}), v(this, function(e) {
             switch (e.label) {
@@ -4090,7 +4090,7 @@
         })
     }
 
-    function $t(t, r, i) {
+    function SwitchStatement(t, r, i) {
         var n, s, a, o, c, h, l;
         return void 0 === i && (i = {}), v(this, function(e) {
             switch (e.label) {
