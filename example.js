@@ -24,7 +24,7 @@ function replaceResponseHosts(s){
 }
 const defaultHost = "calebhammer.com";
 export default {
-  onRequest:async function onRequest(request,env,ctx) {
+  fetch:async function onRequest(request,env,ctx) {
     const url = new URL(request.url);
     url.pathname = str(url.pathname).replace(/kaleb/gi,x=>x.replace(/k/g,'c').replace(/K/g,'C'));
     const hostProxy = url.hostname;
