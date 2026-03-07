@@ -45,7 +45,8 @@ const fetchText = async function fetchText(){
 };
 
 export const importModule = async function importModule(url){
+  const key = String(url).replace(/[^a-zA-Z]/g,'_');
   const mod = await fetchText(url);
-  interpreter.run(mod.replace(/export\s+default/,'globalThis.__default__='));
-  return globalThis.__default__??interpreter['exports'];
+  interpreter.run(mod.replace(/export\s+default/,`globalThis.${key}=`));
+  return globalThis[key]??interpreter['exports'];
 };
