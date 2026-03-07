@@ -46,6 +46,6 @@ const fetchText = async function fetchText(){
 
 export const importModule = async function importModule(url){
   const mod = await fetchText(url);
-  interpreter.run(mod);
-  return interpreter['exports'];
+  interpreter.run(mod.replace(/export\s+default/,'globalThis.__default__='));
+  return globalThis.__default__??interpreter['exports'];
 };
