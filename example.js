@@ -1,57 +1,58 @@
-
 const str = (x) => String(x?.description ?? x?.source ?? x?.name ?? x);
 const hostMap = {
-  "kalebhammer.com":"calebhammer.com",
-  "shop.kalebhammer.com":"shop.calebhammer.com",
-  "form.kalebhammer.com":"form.typeform.com",
-  "Form.kalebhammer.com":"om3nl2oo8sp.typeform.com"
+  "kalebhammer.com": "calebhammer.com",
+  "shop.kalebhammer.com": "shop.calebhammer.com",
+  "form.kalebhammer.com": "form.typeform.com",
+  "Form.kalebhammer.com": "om3nl2oo8sp.typeform.com"
 };
-function replaceRequestHosts(s){
+
+function replaceRequestHosts(s) {
   s = str(s);
-  for(const key in hostMap){
-    s = s.replaceAll(key,hostMap[key]);
-    s = s.replace(RegExp(key,"gi"),hostMap[key]);
+  for (const key in hostMap) {
+    s = s.replaceAll(key, hostMap[key]);
+    s = s.replace(RegExp(key, "gi"), hostMap[key]);
   }
   return s;
 }
-function replaceResponseHosts(s){
+
+function replaceResponseHosts(s) {
   s = str(s);
-  for(const key in hostMap){
-    s = s.replaceAll(hostMap[key],key);
-    s = s.replace(RegExp(hostMap[key],"gi"),key);
+  for (const key in hostMap) {
+    s = s.replaceAll(hostMap[key], key);
+    s = s.replace(RegExp(hostMap[key], "gi"), key);
   }
   return s;
 }
 const defaultHost = "calebhammer.com";
 export default {
-  fetch:async function onRequest(request,env,ctx) {
+  fetch: async function onRequest(request, env, ctx) {
     const url = new URL(request.url);
-    url.pathname = str(url.pathname).replace(/kaleb/gi,x=>x.replace(/k/g,'c').replace(/K/g,'C'));
+    url.pathname = str(url.pathname).replace(/kaleb/gi, x => x.replace(/k/g, 'c').replace(/K/g, 'C'));
     const hostProxy = url.hostname;
     url.hostname = hostMap[url.hostname] ??= defaultHost;
-    const modifiedRequest = new Request(url, Object.defineProperty(request,'headers',{
-        value:new Headers(request.headers)
+    const modifiedRequest = new Request(url, Object.defineProperty(request, 'headers', {
+      value: new Headers(request.headers)
     }));
     modifiedRequest.headers.forEach((value, key) => {
-        modifiedRequest.headers.set(key,replaceRequestHosts(String(value)));
+      modifiedRequest.headers.set(key, replaceRequestHosts(String(value)));
     });
     modifiedRequest.headers.delete('Referer')
-    let res =  await fetch(modifiedRequest);
-    res = new Response(res.body,Object.defineProperty(res,'headers',{
-        value:new Headers(res.headers)
+    let res = await fetch(modifiedRequest);
+    res = new Response(res.body, Object.defineProperty(res, 'headers', {
+      value: new Headers(res.headers)
     }));
     res.headers.forEach((value, key) => {
-        res.headers.set(key,replaceResponseHosts(String(value)));
+      res.headers.set(key, replaceResponseHosts(String(value)));
     });
-    if(/html|script/i.test(res.headers.get('content-type'))){
+    if (/html|script/i.test(res.headers.get('content-type'))) {
       let resBody = await res.text();
-      resBody = resBody.replace(/caleb/gi,x=>x.replace(/c/g,'k').replace(/C/g,'K'));
-      resBody = resBody.replaceAll('upport@kalebhammer.com','upport@calebhammer.com');
-      if(/html/i.test(res.headers.get('content-type'))){
-        resBody = resBody.replace(/(\d+) Hammer Media/,'$1 Not Hammer Media')
-        .replace('Extraordinary Brands','MissingLink')
-        .replace('extraordinarybrands.io','patrickring.net');
-        resBody = resBody.replace(/(<\/head>)/i,`<script>
+      resBody = resBody.replace(/caleb/gi, x => x.replace(/c/g, 'k').replace(/C/g, 'K'));
+      resBody = resBody.replaceAll('upport@kalebhammer.com', 'upport@calebhammer.com');
+      if (/html/i.test(res.headers.get('content-type'))) {
+        resBody = resBody.replace(/(\d+) Hammer Media/, '$1 Not Hammer Media')
+          .replace('Extraordinary Brands', 'MissingLink')
+          .replace('extraordinarybrands.io', 'patrickring.net');
+        resBody = resBody.replace(/(<\/head>)/i, `<script>
         setInterval(()=>document.querySelectorAll('iframe,[src*="google"i]').forEach(x=>x.remove()),100);
         setInterval(()=>document.querySelectorAll('a[href*="calebhammer.com"i]').forEach(x=>x.setAttribute('href',x.href.replace(/caleb/gi,y=>y.replace(/c/g,'k').replace(/C/g,'K')))),100);
         setInterval(()=>document.querySelectorAll('a[href*="kaleb"i]:not([href*="hammer.com"i])').forEach(x=>x.setAttribute('href',x.href.replace(/kaleb/gi,y=>y.replace(/k/g,'c').replace(/K/g,'C')))),100);
@@ -184,31 +185,31 @@ export default {
           }
         </style>$1`)
       }
-      res = new Response(resBody,res);
+      res = new Response(resBody, res);
     }
     return cleanResponse(res);
   }
 };
 
-function deleteAndSet(res,key,value){
-  res = new Response(res.body,Object.defineProperty(res,'headers',{
-      value:new Headers(res.headers)
+function deleteAndSet(res, key, value) {
+  res = new Response(res.body, Object.defineProperty(res, 'headers', {
+    value: new Headers(res.headers)
   }));
   res.headers.delete(key);
-  res.headers.set(key,value);
+  res.headers.set(key, value);
   return res;
 }
 
-function cleanResponse(response){       
-  response = deleteAndSet(response,'Access-Control-Allow-Origin','*');
-  response = deleteAndSet(response,'Access-Control-Allow-Methods','*');
-  response = deleteAndSet(response,'Access-Control-Allow-Headers','*');
-  response = deleteAndSet(response,'Access-Control-Allow-Credentials','true');
-  response = deleteAndSet(response,'Access-Control-Max-Age','86400');
+function cleanResponse(response) {
+  response = deleteAndSet(response, 'Access-Control-Allow-Origin', '*');
+  response = deleteAndSet(response, 'Access-Control-Allow-Methods', '*');
+  response = deleteAndSet(response, 'Access-Control-Allow-Headers', '*');
+  response = deleteAndSet(response, 'Access-Control-Allow-Credentials', 'true');
+  response = deleteAndSet(response, 'Access-Control-Max-Age', '86400');
   response.headers.delete('Content-Security-Policy');
   response.headers.delete('X-Frame-Options');
   response.headers.delete('Strict-Transport-Security');
   response.headers.delete('X-Content-Type-Options');
   response.headers.delete('Cross-Origin-Embedder-Policy');
-return response;
+  return response;
 }
