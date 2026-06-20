@@ -1,8 +1,9 @@
+import { env } from "cloudflare:workers"
 import {
   importModule
 } from './runner.js';
 
-const workerURL = `https://raw.githubusercontent.com/Patrick-ring-motive/venusaur/refs/heads/main/venusaur.js?${new Date().getTime()}`;
+const workerURL = `${env.WORKER_URL}?${new Date().getTime()}`;
 const isPromise = x => x instanceof Promise || typeof x?.then === 'function' || x?.constructor?.name === 'Promise';
 let init;
 export default {
