@@ -3,13 +3,15 @@ import {
   importModule
 } from './runner.js';
 
+globalThis.env=env;
+
 const workerURL = `${env.WORKER_URL}?${new Date().getTime()}`;
 const isPromise = x => x instanceof Promise || typeof x?.then === 'function' || x?.constructor?.name === 'Promise';
 let init;
 export default {
   async fetch(request, env, ctx) {
     try {
-      if (!init) {
+      if (env.mode==='DEV'||!init) {
         init = importModule(workerURL);
       }
       if (isPromise(init)) {
