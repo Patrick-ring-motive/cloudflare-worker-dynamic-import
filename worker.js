@@ -1,9 +1,11 @@
-import { env } from "cloudflare:workers"
+import {
+  env
+} from "cloudflare:workers"
 import {
   importModule
 } from './runner.js';
 
-globalThis.env=env;
+globalThis.env = env;
 
 const workerURL = `${env.WORKER_URL}?${new Date().getTime()}`;
 const isPromise = x => x instanceof Promise || typeof x?.then === 'function' || x?.constructor?.name === 'Promise';
@@ -11,7 +13,7 @@ let init;
 export default {
   async fetch(request, env, ctx) {
     try {
-      if (env.mode==='DEV'||!init) {
+      if (env.mode === 'DEV' || !init) {
         init = importModule(workerURL);
       }
       if (isPromise(init)) {
