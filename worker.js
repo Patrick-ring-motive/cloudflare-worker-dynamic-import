@@ -1,12 +1,14 @@
-import { env } from "cloudflare:workers"
+import {
+  env
+} from "cloudflare:workers"
 import {
   importModule
 } from './runner.js';
 
-globalThis.env=env;
+globalThis.env = env;
 
-const debug = (...args)=>{
-  if(env.mode === 'DEBUG'){
+const debug = (...args) => {
+  if (env.mode === 'DEBUG') {
     console.log(...args);
   }
 };
@@ -18,8 +20,8 @@ export default {
   async fetch(request, env, ctx) {
     try {
       debug(workerURL);
-      if (['DEV','DEBUG'].includes(env.mode)||!init) {
-        if(!isPromise(init)){
+      if (['DEV', 'DEBUG'].includes(env.mode) || !init) {
+        if (!isPromise(init)) {
           workerURL = `${env.WORKER_URL}?${crypto.randomUUID()+new Date().getTime()+Math.random()}`;
           init = importModule(workerURL);
         }
