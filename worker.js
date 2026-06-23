@@ -14,6 +14,7 @@ export default {
   async fetch(request, env, ctx) {
     try {
       if (env.mode === 'DEV' || !init) {
+        if(!isPromise(init))
         init = importModule(workerURL);
       }
       if (isPromise(init)) {
